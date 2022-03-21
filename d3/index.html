@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>A</title>
+    <style>
+            div.tooltip {	
+                position: absolute;			
+                text-align: center;			
+                width: 60px;					
+                height: 28px;					
+                padding: 2px;				
+                font: 12px sans-serif;		
+                background: lightsteelblue;	
+                border: 0px;		
+                border-radius: 8px;			
+                pointer-events: none;			
+            }
+
+    p {
+        font-size: 14px;
+        color:#fff;
+        
+    }        
+
+    body{
+        position: relative;
+        background-color: black;
+    
+        
+    }        
+
+    #chart{
+        overflow:visible;
+        margin-left: 50px;
+    }
+
+    .center {
+        position: absolute;
+        top:10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .svg {
+        position: absolute;
+        top:10%;
+        left:10%;
+    }        
+
+
+     .buttonGroup {
+        display: flex;
+        justify-content: center;
+        
+
+     }  
+
+     .buttonGroup button{
+        width:20px;
+        height:10px;
+        border-radius: 5px;
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;   
+        outline: none;     
+        transition: transform .5s;
+     }   
+
+     .buttonGroup button:active{
+         transform: scale(1.2);
+     }  
+
+     .unselected {
+        background-color: rgb(77, 60, 224);
+
+     }
+
+     .selected{
+        background-color: rgb(12, 189, 50);
+     }
+
+     .buttonGroup button:nth-child(2){
+         margin:0 10px;
+     }
+     .buttonGroup button:nth-child(3){
+        margin-right:10px;
+     }
+
+     .tooltip {
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         background-color: black;
+         color: #fff;
+         min-width: 20px;
+       
+     }
+
+    </style>
+    <script src="./bootstrap.min.js"></script>
+    <script src="./jquery.flot.js"></script>
+    <script src='./jquery.min.js'></script>
+    <link href='./bootstrap.min.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+    <div class="buttonGroup">
+        <p>Tree Structure</p>
+
+    </div>
+
+    <div id="chart">
+        <button class="btn btn-success" id="save_as_svg" value="">
+            Save as svg</button>
+            <button class="btn btn-success" id="save_as_png">Save as PNG</button>
+            
+
+    </div>
+
+    <script src="./d3.js"></script>
+    <script src="./d3-selection-multi.js"></script>
+    <script type="text/javascript" src="./treedata.json"></script> 
+    <script src="./main.js"></script>
+    
+    <script>
+$("#save_as_svg").click(function() { downloadSVG(); });
+        function downloadSVG()
+        {
+                    // Declare Variables
+            var margin = {top: 60, right: 60, bottom: 60, left:120},
+            width = d3.select("svg").attr("width")
+            height = d3.select("svg").attr("height")
+    
+            var svg = d3.select("svg")
+            // //Create Title 
+            // svg.append("text")
+            // .attr("x", width / 2 )
+            // .attr("y", 0)
+            // .style("text-anchor", "middle")
+            // .text($('.mg-chart-title').html());
+    
+            svg.attr("width", width)
+            svg.attr("height", height)
+            svg.attr("font-family", "'Helvetica Neue',Helvetica,Arial,sans-serif")
+            svg.attr("color", "#333")
+            svg.append('g')
+    
+    
+            var e = document.createElement('script'); 
+            e.setAttribute('src', 'https://nytimes.github.io/svg-crowbar/svg-crowbar.js'); 
+            e.setAttribute('class', 'svg-crowbar'); 
+            document.body.appendChild(e);
+        }
+    
+        d3.select("#save_as_png").on("click", function(){
+            
+    
+            var svg = document.querySelector( "svg" );
+            var svgData = new XMLSerializer().serializeToString( svg );
+    
+            var canvas = document.createElement("canvas");
+            canvas.width = d3.select("svg").attr("width");
+            canvas.height = d3.select("svg").attr("height");
+            ctx = canvas.getContext("2d");
+    
+            var img = document.createElement( "img" );
+            img.setAttribute( "src", "data:image/svg+xml;base64," + btoa( svgData ) );
+    
+            img.onload = function() {
+                ctx.drawImage( img, 0, 0 );
+                
+                var canvasdata = canvas.toDataURL("image/png");
+    
+                console.log(canvasdata)
+                var pngimg = '<img src="'+canvasdata+'">'; 
+                d3.select("#pngdataurl").html(pngimg);
+    
+                var a = document.createElement("a");
+    
+                a.download = "name"+".png";
+                a.href = canvasdata;
+                console.log(a.click())
+            };
+          var html = d3.select("svg")
+                .attr("version", 1.1)
+                .attr("xmlns", "http://www.w3.org/2000/svg")
+                .node().parentNode.innerHTML;
+          var width = d3.select("svg").attr("width")
+          var height = d3.select("svg").attr("height")
+    
+          var imgsrc = 'data:image/svg+xml;base64,'+ btoa(unescape(encodeURIComponent(html)));  
+          // saveSVG(imgsrc, width, height);
+    
+        });
+    
+    //save the current svg as a png - offer the user to name it
+    function saveSVG(imgsrc, width, height) {
+        var inputValue = prompt("Name the image")
+          if (!inputValue) {
+            return false
+          }
+          console.log("not false")
+    
+          var canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            context = canvas.getContext("2d");
+    
+            var image = new Image();
+            image.src = imgsrc;
+            console.log(image.src);
+            //The HTMLImageElement provided is in the 'broken' state.
+            image.onload = function(err) {
+              console.log("here")
+              context.drawImage(image, 0, 0);
+              console.log(context)
+              var canvasdata = canvas.toDataURL("image/png");
+    
+              console.log(canvasdata)
+              var pngimg = '<img src="'+canvasdata+'">'; 
+                d3.select("#pngdataurl").html(pngimg);
+    
+              var a = document.createElement("a");
+    
+              a.download = inputValue+".png";
+              a.href = canvasdata;
+              console.log(a.click())
+    
+            };
+            console.log("beyond load")
+    
+    }
+    </script>
+  
+   
+</body>
+</html>
